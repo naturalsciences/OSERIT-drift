@@ -1,0 +1,9 @@
+oserit_gfortran:
+	$(MAKE) $(EXEFILE) "MAINFILE=$(MAINFILE)" "VPATH=$(VPATH)" \
+        "FC=gfortran" \
+        "FCOPTS= -O3" \
+        "FCDEFS=" "FCDEBUG=" \
+        "FCIFLAGS=$(PATH_NETCDF_FFLAGS) -I../libs/json-fortran/lib/ -I../../bin/mod -cpp" \
+        "FLIBS=$(PATH_NETCDF_FLIBS) -lnetcdff -Wl,-Bstatic -L../libs/json-fortran/lib/lib -ljsonfortran -Wl,-Bdynamic"\
+        "CPP=" "CPPF=cpp" "CPPOPTS=-traditional-cpp" "CPPDEFS=$(CPPDFLAGS)"
+

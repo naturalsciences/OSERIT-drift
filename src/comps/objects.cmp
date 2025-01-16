@@ -1,0 +1,17 @@
+#
+# Object files for OSERIT default model
+#
+# Last Update - 4 Nov 2008              @{COHERENS}Makefile   V2
+#
+
+MODULES_OSE = check_oserit.o \
+datatypes_ose.o \
+grid_module.o get_vars.o\
+osephyspars.o oseswitches.o \
+particle_cloud.o partpars.o \
+time_routines_ose.o timepars_ose.o \
+oserit_run_reader.o wave_routines.o \
+modstate.o parampars.o
+
+SUBPROGS_OSE = Oserit_Utils.o Oserit_Start.o \
+Lagrangian_Drift.o Read_Forcing_All.o\

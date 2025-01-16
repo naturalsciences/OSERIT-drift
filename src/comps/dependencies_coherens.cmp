@@ -1,0 +1,28 @@
+#
+# Dependencies for compiling of COHERENS
+#
+# Version - @{COHERENS}dependencies.cmp   V2.0
+#
+# $Date: 2011-03-18 14:35:25 +0100 (Fri, 18 Mar 2011) $
+#
+# $Revision: 188 $
+#
+
+# modules
+
+iopars.o: iopars.f90 syspars.o
+physpars.o: physpars.f90 syspars.o
+syspars.o: syspars.f90
+timepars.o: timepars.f90 syspars.o
+datatypes_init.o: datatypes_init.f90 iopars.o
+error_routines.o: error_routines.F90 iopars.o \
+  syspars.o utility_routines.o
+rng_library.o: rng_library.f90 iopars.o syspars.o error_routines.o \
+  time_routines.o parampars.o
+time_routines.o: time_routines.f90 iopars.o syspars.o timepars.o \
+  error_routines.o
+utility_routines.o: utility_routines.f90 iopars.o syspars.o
+
+
+
+

@@ -1,0 +1,16 @@
+#
+# Object files for compilation of COHERENS
+#
+# Version - @{COHERENS}dependencies.cmp   V2.0
+#
+# $Date: 2011-03-18 14:35:25 +0100 (Fri, 18 Mar 2011) $
+#
+# $Revision: 188 $
+#
+
+MODULES = \
+iopars.o \
+physpars.o syspars.o timepars.o \
+error_routines.o \
+rng_library.o time_routines.o \
+utility_routines.o

@@ -1,0 +1,54 @@
+
+#
+# Dependencies for compiling of oserit default model
+#
+# Last Update -
+#
+
+# modules
+
+osephyspars.o: osephyspars.f90
+oseswitches.o: oseswitches.f90
+grid_module.o: grid_module.f90 datatypes_ose.o time_routines_ose.o parampars.o
+get_vars.o: get_vars.f90 grid_module.o osephyspars.o
+partpars.o: partpars.f90 datatypes_ose.o
+datatypes_ose.o: datatypes_ose.f90 syspars.o
+check_oserit.o: check_oserit.f90 datatypes_ose.o\
+ partpars.o syspars.o timepars.o timepars_ose.o error_routines.o iopars.o \
+ time_routines.o oseswitches.o parampars.o grid_module.o
+time_routines_ose.o: time_routines_ose.f90 time_routines.o timepars.o iopars.o
+timepars_ose.o: timepars_ose.f90 syspars.o
+particle_cloud.o: particle_cloud.f90 partpars.o \
+ syspars.o physpars.o iopars.o \
+ time_routines.o time_routines_ose.o rng_library.o \
+ datatypes_ose.o \
+ Oserit_Utils.o oserit_run_reader.o timepars_ose.o \
+ get_vars.o
+oserit_run_reader.o: oserit_run_reader.f90 syspars.o \
+ oseswitches.o partpars.o timepars.o iopars.o osephyspars.o \
+ grid_module.o parampars.o
+wave_routines.o: wave_routines.f90 syspars.o get_vars.o\
+ time_routines.o partpars.o oseswitches.o osephyspars.o
+parampars.o : parampars.f90 datatypes_ose.o
+output_writer.o : output_writer.f90
+
+
+# subprograms
+
+Oserit_Utils.o: Oserit_Utils.f90\
+  error_routines.o time_routines.o \
+  modstate.o iopars.o timepars.o    \
+  timepars_ose.o oseswitches.o wave_routines.o \
+  syspars.o partpars.o
+Read_Forcing_All.o: Read_Forcing_All.f90 grid_module.o
+Lagrangian_Drift.o: Lagrangian_Drift.f90 \
+  modstate.o parampars.o\
+  iopars.o osephyspars.o partpars.o physpars.o \
+  syspars.o timepars_ose.o timepars.o \
+  wave_routines.o
+Oserit_Start.o: Oserit_Start.f90 partpars.o oseswitches.o timepars.o timepars_ose.o \
+  particle_cloud.o Read_Forcing_All.o
+
+main.o: main.f90 iopars.o \
+  timepars.o time_routines.o utility_routines.o \
+  oserit_run_reader.o output_writer.o check_oserit.o

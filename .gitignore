@@ -1,0 +1,17 @@
+*.o
+*.mod
+*.log
+*.pyc
+*.nc
+*.dat
+.gitmodules
+OHNS
+tests/tmp
+data
+bin
+oserit
+!src/oserit
+src/libs
+simulations/*
+log
+!simulations/default_files/
