@@ -40,7 +40,7 @@ if usr_input:
             answer = input("use (y/n)")
 
 
-library_json_fortran_version = "9.0.2"
+library_json_fortran_version = "8.4.0"
 
 print("\nCreation of folders...")
 create_folder(oserit_dir, 'bin')

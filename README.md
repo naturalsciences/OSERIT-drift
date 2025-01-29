@@ -27,7 +27,7 @@ The following folders must be created:
  1. `bin`
  2. `bin/obj`
  3. `bin/mod`
- 4. `src/libs/json-fortran-8.4.0/lib`
+ 4. `src/libs/`
 
 The following folder can be created but are not mandatory to make OSERIT works:
 
@@ -37,7 +37,12 @@ The following folder can be created but are not mandatory to make OSERIT works:
 
 #### Compilation of json-fortran
 
-json-fortran is needed in order to make OSERIT able to read and write json files. To do so, cmake must be installed first. then, go to `src/libs/json-fortran-8.4.0/lib` and make the two following command:
+json-fortran is needed in order to make OSERIT able to read and write json files. To do so, cmake must be installed first. Then, go to `src/libs/` and clone the correct version of json-fortran. For instance (the version is subject to change):
+
+1. `git clone https://github.com/jacobwilliams/json-fortran.git`
+2. `git checkout tags/8.4.0`
+
+In `src/libs/json-fortran/lib` make the two following command:
 
 1. `cmake ..`
 2. `make`
