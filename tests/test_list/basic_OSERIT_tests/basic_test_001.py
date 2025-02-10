@@ -40,9 +40,9 @@ try:
 
     if len(result.dimensions['particles']) != req["release"]["nopart"]:
         error += "the number of particle does not correspond to nopart "
-    if not np.all(result.variables['lon'][:] == default_lon):
+    if not np.all(result.variables['lon'][:] == np.float32(default_lon)):
         error += "some particles have not the good longitude "
-    if not np.all(result.variables['lat'][:] == default_lat):
+    if not np.all(result.variables['lat'][:] == np.float32(default_lat)):
         error += "some particles have not the good latitude "
 
     """Here end the custom content of the test"""

@@ -45,10 +45,10 @@ try:
     depth_final = speed * 22 * 3600
 
     error = ""
-    if  result.variables['lon'][-1] !=  default_lon: #1%error
+    if  result.variables['lon'][-1] !=  np.float32(default_lon):
         error += "particle have not the good latitude\n"
 
-    if  result.variables['lat'][-1] !=  default_lat: #1%error
+    if  result.variables['lat'][-1] !=  np.float32(default_lat):
         error += "particle have not the good latitude\n"
 
     if abs(result.variables['depth'][-1] -depth_final) > abs(depth_final/100):#more than 1% error

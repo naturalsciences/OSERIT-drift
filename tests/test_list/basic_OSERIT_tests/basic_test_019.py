@@ -42,10 +42,10 @@ try:
     result = run_oserit(id, path_ose, path_tmp, show_ose_res)
 
     error = ""
-    if result.variables['lon'][-1] <= default_lon:
+    if result.variables['lon'][-1][0] <= default_lon:
         error += "particle should go to East"
     
-    if result.variables['lat'][-1] != default_lat:
+    if result.variables['lat'][-1][0] != default_lat:
         error += "particle should stay at its latitude"
 
     #to the North anticlockwise
@@ -57,10 +57,10 @@ try:
 
     result = run_oserit(id, path_ose, path_tmp, show_ose_res)
 
-    if result.variables['lon'][-1] != default_lon:
+    if result.variables['lon'][-1][0] != default_lon:
         error += "particle should stay at its longitude"
     
-    if result.variables['lat'][-1] <= default_lat:
+    if result.variables['lat'][-1][0] <= default_lat:
         error += "particle should go to the North"
 
     #to the south clockwise - 90
@@ -75,10 +75,10 @@ try:
 
     result = run_oserit(id, path_ose, path_tmp, show_ose_res)
 
-    if result.variables['lon'][-1] != default_lon:
+    if result.variables['lon'][-1][0] != default_lon:
         error += "particle should stay at its longitude"
     
-    if result.variables['lat'][-1] >= default_lat:
+    if result.variables['lat'][-1][0] >= default_lat:
         error += "particle should go to the South"
 
 
@@ -90,13 +90,13 @@ try:
 
     result = run_oserit(id, path_ose, path_tmp, show_ose_res)
 
-    if result.variables['lon'][-1] != default_lon:
+    if result.variables['lon'][-1][0] != default_lon:
         error += "particle should stay at its longitude"
     
-    if result.variables['lat'][-1] >= default_lat:
+    if result.variables['lat'][-1][0] >= default_lat:
         error += "particle should go to the South"
 
-    if result.variables['lat'][-1] <= dist_srfc:
+    if result.variables['lat'][-1][0] <= dist_srfc:
         error += "particle underwater should go slower"
 
 
