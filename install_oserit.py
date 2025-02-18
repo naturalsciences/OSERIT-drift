@@ -1,7 +1,6 @@
 import sys
 import os
 import subprocess
-import pkg_resources
 
 
 def create_folder(path, folder_name):
