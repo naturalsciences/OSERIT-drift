@@ -38,7 +38,7 @@ FUNCTION get_depth_mean_loc(loc)
   n = get_forcing_id(loc, oserit_param%lookup_bat(:,5))
   IF(n > -1)THEN
       get_depth_mean_loc = get_value(loc, domains(n)%forcings(hydro_id), &
-                                      & array_2D = domains(n)%forcings(hydro_id)%depth_data%depth_mean)
+                                      & array_2D = domains(n)%forcings(bat_id)%depth_data%depth_mean)
   ELSE
       get_depth_mean_loc = 0
   END IF
@@ -72,8 +72,7 @@ INTEGER :: n ! forcing used for the loc
         get_depth_tot_loc = depth_tot_old * (1-ratio) + depth_tot * ratio
       END IF
   ELSE
-      !trying with the uniform depth if there are not a forcing with zeta
-      get_depth_tot_loc = get_depth_mean_loc(loc)
+        get_depth_tot_loc = get_depth_mean_loc(loc)
   END IF
 END FUNCTION
 
@@ -119,9 +118,8 @@ REAL :: depth
 INTEGER, DIMENSION(3) :: nearest_neighbor ! indexes of the closest neighbor
 INTEGER :: n ! forcing used for the loc
 
-n = get_forcing_id(loc, oserit_param%lookup_bat(:,5))
 IF(n > -1)THEN
-    depth = get_value(loc, domains(n)%forcings(hydro_id), array_2D = domains(n)%forcings(hydro_id)%depth_data%depth_mean)
+    depth = get_depth_mean_loc(loc)
     IF (depth <= 0 .OR. depth > 10000) THEN
       get_mask_loc = .FALSE.
     ELSE

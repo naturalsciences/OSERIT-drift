@@ -399,9 +399,9 @@ SUBROUTINE update_depth_forcing(grid_id)
   INTEGER, INTENT(IN) :: grid_id
   REAL, ALLOCATABLE, DIMENSION(:) :: depth_tmp
   REAL, DIMENSION(2) :: ar_sc_off
-  real :: T1, T2
+  real :: T1, T2, dx, dy
   INTEGER, ALLOCATABLE, DIMENSION(:) :: len_array
-  INTEGER :: x, y, z, status
+  INTEGER :: x, y, z, status, x0, x1, y0, y1
   INTEGER :: time_depth_old_before, time_depth_before !before the reloading of the depth, to check if it needs to be multiplied by it
 
   call cpu_time(T1)
@@ -423,11 +423,66 @@ SUBROUTINE update_depth_forcing(grid_id)
     domains(grid_id)%forcings(hydro_id)%depth_data%depth%var_old = domains(grid_id)%forcings(hydro_id)%depth_data%depth%var
     domains(grid_id)%forcings(hydro_id)%depth_data%depth_set = .TRUE.
 
-    domains(grid_id)%forcings(hydro_id)%depth_data%depth_tot%var(:,:,1) = &
-                                                                & domains(grid_id)%forcings(hydro_id)%depth_data%depth_mean
 
+    ! the depth of the bathymetry must be interpolated on the current grid
+    ! interpolation bilinear
+    do x = 1, size(domains(grid_id)%forcings(hydro_id)%lons)
+      do y = 1, size(domains(grid_id)%forcings(hydro_id)%lats)
+        if (domains(grid_id)%forcings(hydro_id)%lons(x) &
+              & <= domains(grid_id)%forcings(bat_id)%lons(1))then
+          x0 = 1
+          x1 = 1
+          dx = 0
+        else if(domains(grid_id)%forcings(hydro_id)%lons(x) &
+                  & >= domains(grid_id)%forcings(bat_id)%lons(size(domains(grid_id)%forcings(bat_id)%lons)))then
+          x0 = size(domains(grid_id)%forcings(bat_id)%lons)
+          x1 = size(domains(grid_id)%forcings(bat_id)%lons)
+          dx = 0
+        else
+          x0 = 1
+          do while (domains(grid_id)%forcings(bat_id)%lons(x0+1) &
+                      & < domains(grid_id)%forcings(hydro_id)%lons(x))
+            x0 = x0 + 1
+          end do
+          x1 = x0 + 1
+          dx = (domains(grid_id)%forcings(hydro_id)%lons(x) - domains(grid_id)%forcings(bat_id)%lons(x0)) / &
+               & (domains(grid_id)%forcings(bat_id)%lons(x1) - domains(grid_id)%forcings(bat_id)%lons(x0))
+
+        end if
+
+
+        if (domains(grid_id)%forcings(hydro_id)%lats(y) &
+                 & <= domains(grid_id)%forcings(bat_id)%lats(1))then
+          y0 = 1
+          y1 = 1
+          dy = 0
+        else if(domains(grid_id)%forcings(hydro_id)%lats(y) &
+                 & >= domains(grid_id)%forcings(bat_id)%lats(size(domains(grid_id)%forcings(bat_id)%lats)))then
+          y0 = size(domains(grid_id)%forcings(bat_id)%lats)
+          y1 = size(domains(grid_id)%forcings(bat_id)%lats)
+          dy = 0
+        else
+          y0 = 1
+          do while (domains(grid_id)%forcings(bat_id)%lats(y0+1) &
+                    & < domains(grid_id)%forcings(hydro_id)%lats(y))
+            y0 = y0 + 1
+          end do
+          y1 = y0 + 1
+          dy = (domains(grid_id)%forcings(hydro_id)%lats(y) - domains(grid_id)%forcings(bat_id)%lats(y0)) / &
+               & (domains(grid_id)%forcings(bat_id)%lats(y1) - domains(grid_id)%forcings(bat_id)%lats(y0))
+
+        end if
+
+        domains(grid_id)%forcings(hydro_id)%depth_data%depth_tot%var(x,y,1) = &
+          & domains(grid_id)%forcings(bat_id)%depth_data%depth_mean(x0,y0) * (1-dx) * (1-dy) + &
+          & domains(grid_id)%forcings(bat_id)%depth_data%depth_mean(x1,y0) * dx * (1-dy) + &
+          & domains(grid_id)%forcings(bat_id)%depth_data%depth_mean(x0,y1) * (1-dx) * dy + &
+          & domains(grid_id)%forcings(bat_id)%depth_data%depth_mean(x1,y1) * dx * dy
+      end do
+    end do  
+    ! static in time
     domains(grid_id)%forcings(hydro_id)%depth_data%depth_tot%var_old(:,:,1) = &
-                                                                & domains(grid_id)%forcings(hydro_id)%depth_data%depth_mean
+                                        & domains(grid_id)%forcings(hydro_id)%depth_data%depth_tot%var(:,:,1)
 
     DEALLOCATE(depth_tmp)
   ELSE IF(oserit_param%iopt_uniform_depth(grid_id) == 0) THEN! it is already (lon,lat,depth)
@@ -907,7 +962,16 @@ FUNCTION get_id_time(tg_time, time_forcing, file_duration, next_time, last_prev)
 END FUNCTION
 
 SUBROUTINE prepare_grid(g_par, ncid, lookup, dim_lats, dim_lons)
-  !allocate lon lat and time
+  !allocate lon lat and time. 
+  ! if lookup 1 is at -1 this means it does not allocate time (bathymetry)
+  !lookup:
+  ! 1 : dim time
+  ! 2 : dim lon
+  ! 3 : dim lat
+  ! 4 : var time
+  ! 5 : var lon
+  ! 6 : var lat
+
   use datatypes_ose
   use netcdf
   implicit none
@@ -939,16 +1003,20 @@ SUBROUTINE prepare_grid(g_par, ncid, lookup, dim_lats, dim_lons)
   status = nf90_get_var(ncid, lookup(5), g_par%lons,count=(/dim_lons/))
   if (status /= nf90_noerr) stop "unable to load lons"
 
-  status = nf90_inquire_dimension(ncid, lookup(1), name, dim_time)
-  if (status /= nf90_noerr) stop 'unable to inquire time dimensions for allocation'
-  print*, "dim of (time)", dim_time,"  variable name:",name
-  ALLOCATE(g_par%times(dim_time))
-  ALLOCATE(g_par%times_old(dim_time))
-  status = nf90_get_var(ncid,lookup(4), g_par%times,count=(/dim_time/))
-  if (status /= nf90_noerr) stop "unable to load times waves"
-  print*, "value of times ",g_par%times
+  if(lookup(1) > 0)then
+    status = nf90_inquire_dimension(ncid, lookup(1), name, dim_time)
+    if (status /= nf90_noerr) stop 'unable to inquire time dimensions for allocation'
+    print*, "dim of (time)", dim_time,"  variable name:",name
+    ALLOCATE(g_par%times(dim_time))
+    ALLOCATE(g_par%times_old(dim_time))
+    status = nf90_get_var(ncid,lookup(4), g_par%times,count=(/dim_time/))
+    if (status /= nf90_noerr) stop "unable to load times"
+    print*, "value of times ",g_par%times
 
-  g_par%times_old = g_par%times
+    g_par%times_old = g_par%times
+  end if
+
+  
 
 END SUBROUTINE
 

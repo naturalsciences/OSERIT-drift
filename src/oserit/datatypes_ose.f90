@@ -71,7 +71,7 @@ end type
 
 type :: Domain
   real :: lon_min, lon_max, lat_min, lat_max
-  type(ForcingType), dimension(3) :: forcings
+  type(ForcingType), dimension(4) :: forcings
 end type
 
 type output_file_data

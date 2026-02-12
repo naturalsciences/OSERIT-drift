@@ -153,12 +153,18 @@ DO n =1,nogrids
     status = nf90_open(oserit_param%io_bat_filename(n),NF90_NOWRITE, ncids(n,bat_id))
     if (status /= nf90_noerr) stop 'unable to open bathymetry file forcing for allocation'
 
-    dim_lons = size(domains(n)%forcings(hydro_id)%lons)
-    dim_lats = size(domains(n)%forcings(hydro_id)%lats)
+    call prepare_grid(domains(n)%forcings(bat_id), ncids(n,bat_id), &
+                                                        & [ 0, &
+                                                          & oserit_param%lookup_bat(n,1), &
+                                                          & oserit_param%lookup_bat(n,2), &
+                                                          & 0, &
+                                                          & oserit_param%lookup_bat(n,3), &
+                                                          & oserit_param%lookup_bat(n,4)], &
+                                & dim_lats, dim_lons)
 
-    ALLOCATE(domains(n)%forcings(hydro_id)%depth_data%depth_mean(dim_lons,dim_lats))
+    ALLOCATE(domains(n)%forcings(bat_id)%depth_data%depth_mean(dim_lons,dim_lats))
 
-    domains(n)%forcings(hydro_id)%depth_data%depth_mean = 0
+    domains(n)%forcings(bat_id)%depth_data%depth_mean = 0
     print*,"Successful bathymmetry allocation for domain",n
   END IF
 
@@ -306,8 +312,8 @@ INTEGER, INTENT(IN) :: n !id of the grid
 INTEGER, DIMENSION(2) :: len_array ! dimension of the arrays (lon,lat)
 INTEGER :: status
 
-len_array = SHAPE(domains(n)%forcings(hydro_id)%depth_data%depth_mean)
-status = nf90_get_var(ncids(n,bat_id), oserit_param%lookup_bat(n,5), domains(n)%forcings(hydro_id)%depth_data%depth_mean, &
+len_array = SHAPE(domains(n)%forcings(bat_id)%depth_data%depth_mean)
+status = nf90_get_var(ncids(n,bat_id), oserit_param%lookup_bat(n,5), domains(n)%forcings(bat_id)%depth_data%depth_mean, &
                       & start=(/1,1/), count =(/len_array(1),len_array(2)/))
 if (status /= nf90_noerr) stop "unable to load depth_mean"
 
