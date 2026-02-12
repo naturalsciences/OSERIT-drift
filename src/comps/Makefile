@@ -68,8 +68,11 @@ clean:
 #$(EXEFILE): $(MODFILES) $(SUBFILES) $(MAINFILE)
 #	$(FC) $(FFLAGS)  -o $(EXEFILE) $(MODFILES) $(SUBFILES) $(FLIBS)\
 #        $(MAINFILE)
-PATH_NETCDF_FFLAGS = $(shell nc-config --fflags)
-PATH_NETCDF_FLIBS = $(shell nc-config --flibs)
+NETCDF_CONFIG := $(shell command -v nf-config 2>/dev/null || command -v nc-config 2>/dev/null)
+
+PATH_NETCDF_FFLAGS := $(shell $(NETCDF_CONFIG) --fflags)
+PATH_NETCDF_FLIBS  := $(shell $(NETCDF_CONFIG) --flibs)
+
 $(EXEFILE): $(MODFILES) $(SUBFILES) $(MAINFILE)
 	$(FC) $(FFLAGS) $(OBJDIR)/*.o -o ../../$(EXEFILE) $(FLIBS)
 
