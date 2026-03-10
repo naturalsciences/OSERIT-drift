@@ -1,5 +1,7 @@
 # OSERIT-drift
 
+[![Zenodo](https://zenodo.org/badge/DOI/10.5281/zenodo.18938634.svg)](https://doi.org/10.5281/zenodo.18938634)
+
 OSERIT-drift (Oil Spill Evaluation and Response Integrated Tool) is a Lagrangian tracking model to simulate drift at sea. This version is able to simulate it with current, wind and waves.
 
 ## Installation
