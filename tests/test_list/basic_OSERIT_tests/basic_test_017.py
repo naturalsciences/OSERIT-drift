@@ -42,6 +42,7 @@ try:
     req["release"]["nopart"] = 1
     req["drift"]["iopt_3D"] = 1
     req["drift"]["iopt_cur_drift"] = 1
+    req["drift"]["iopt_seabed_stop"] = 1
     req["drift"]["resuspension"]["iopt_resuspension"] = 1
     req["drift"]["resuspension"]["min_speed"]["value"]=1.1
     req["drift"]["resuspension"]["height"]["value"]=1.1

@@ -260,7 +260,8 @@ END IF
 
 IF (part(nij)%depth_tot < -part(nij)%z_depth .AND. part(nij)%state /= st_atm &
                                 &  .AND. part(nij)%state /= st_dis &
-                                &  .AND. part(nij)%state /= st_disp) THEN !If the particle is at the bottom and not evaporated
+                                &  .AND. part(nij)%state /= st_disp &
+                                &  .AND. oserit_param%iopt_seabed_stop == 1) THEN !If the particle is at the bottom and not evaporated
   if(oserit_param%iopt_prevent_dif_seabed == 0)then
     part(nij)%state = st_seabed
     part(nij)%drift_state = drst_stop

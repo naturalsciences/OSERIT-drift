@@ -32,6 +32,7 @@
       "iopt_cur_drift":0,
       "iopt_wave_drift":0,
       "iopt_stranding":0,
+      "iopt_seabed_stop":0,
       "iopt_resurfacing":0,
       "iopt_leeway":0,
       "resuspension":{

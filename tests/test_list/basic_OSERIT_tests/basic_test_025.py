@@ -24,39 +24,40 @@ try:
 
     """Here start the custom content of the test"""
 
-    test_name = "vertical diffusion not putting particle at seabed"
-    test_descritpion = "Test iopt_prevent_dif_seabed"
+    test_name = "stop seabed"
+    test_descritpion = "Test if a particle do not get to the bottom when iopt_seabed_stop=0 but does it when iopt_seabed_stop=1"
 
-    forcing_val = forcings()
-    forcings_list = [forcing_val]
+    forcings_list = [forcings()]
     req = get_default_request(id,path_ose)
-    req["drift"]["iopt_3D"] = 1
-    req['release']['nopart'] = 1
-    req["drift"]["iopt_seabed_stop"] = 1
-    req["drift"]["iopt_dif_coef_v"]["value"] = 1
-    req["drift"]["diffusivity_coefficients"]["K_dif_z"]["value"] = 10000
     cfg =  get_default_cfg(path_tmp+"/"+id)
 
-    cloud = get_simple_cloud(depth = -5, state=1)
+    req = get_default_request(id,path_ose)
+    req["release"]["nopart"] = 1
+    req["drift"]["iopt_3D"] = 1
+    req["drift"]["w_imposed"]["value"] = -1
+    
+
+
+    cfg =  get_default_cfg(path_tmp+"/"+id)
+    cloud = get_simple_cloud(depth = -1, state = 1)
 
     add_OSERIT_inputs(id, path_tmp, req, cfg, forcings_list, cloud = cloud)
 
     result = run_oserit(id, path_ose, path_tmp, show_ose_res)
-
+    
     error = ""
 
-    if result.variables['part_state'][-1] != 4:
-        error += f"particle state should be at the seabed when iopt_prevent_dif_seabed=0"
-    
-    #prevent the diffusion to put particle at the seabed
-    req["drift"]["iopt_prevent_dif_seabed"] = 1
+    if result.variables['part_state'][-1] != 1:
+        error += "Particle should be still in the water column when iopt_seabed_stop = 0"
+
+    req["drift"]["iopt_seabed_stop"] = 1
 
     add_OSERIT_inputs(id, path_tmp, req, cfg, forcings_list, cloud = cloud)
 
     result = run_oserit(id, path_ose, path_tmp, show_ose_res)
-
-    if result.variables['part_state'][-1] != 1:
-        error += f"particle state should be in water column when iopt_prevent_dif_seabed=1"
+    
+    if result.variables['part_state'][-1] != 4:
+        error += "Particle should be at the seabed when iopt_seabed_stop = 1"
 
     """Here end the custom content of the test"""
 
