@@ -63,6 +63,7 @@ my_parameters%iopt_cur_drift       = 0
 my_parameters%iopt_wave      = 0
 my_parameters%iopt_wave_drift= 0
 my_parameters%iopt_stranding = 0
+my_parameters%iopt_seabed_stop = 0
 my_parameters%K_dif_x             = 0.25
 my_parameters%K_dif_y             = 0.25
 my_parameters%K_dif_z             = 0.00043
@@ -146,6 +147,7 @@ SUBROUTINE oserit_parameters_print(my_parameters)
   PRINT *,my_parameters%iopt_wave
   PRINT *,my_parameters%iopt_wave_drift
   PRINT *,my_parameters%iopt_stranding
+  PRINT *,my_parameters%iopt_seabed_stop
   PRINT *,my_parameters%K_dif_x
   PRINT *,my_parameters%K_dif_y
   PRINT *,my_parameters%K_dif_z
@@ -415,6 +417,10 @@ SUBROUTINE read_input_json(oserit_param,infilename)
     call json%get('drift.iopt_resurfacing',string,found)
     if (.not. found) stop 'json:iopt_resurfacing is undefined'
     read(string,*) oserit_param%iopt_resurfacing
+
+    call json%get('drift.iopt_seabed_stop',string,found)
+    if (.not. found) stop 'json:iopt_seabed_stop is undefined'
+    read(string,*) oserit_param%iopt_seabed_stop
 
     call json%get('drift.nbr_subtmstp_vertical.value',string,found)
     if (.not. found) stop 'json:nbr_subtmstp_vertical is undefined'

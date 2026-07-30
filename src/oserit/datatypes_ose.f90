@@ -104,6 +104,7 @@ TYPE oserit_parameters
    INTEGER :: iopt_wave
    INTEGER :: iopt_wave_drift
    INTEGER :: iopt_stranding
+   INTEGER :: iopt_seabed_stop
    REAL :: K_dif_x
    REAL :: K_dif_y
    REAL :: K_dif_z
