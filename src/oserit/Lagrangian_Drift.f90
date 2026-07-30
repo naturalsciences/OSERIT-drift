@@ -976,7 +976,7 @@ SUBROUTINE resuspension
         CALL wave_velocity(part(nij)%interp_loc,1,u_speed_wave,v_speed_wave)
       END IF
 
-      speed_sq = (u_speed_cur-u_speed_wave)**2 + (v_speed_cur-v_speed_wave)**2
+      speed_sq = (u_speed_cur + u_speed_wave)**2 + (v_speed_cur + v_speed_wave)**2
 
       IF(speed_sq > threshold_sq)THEN
         part(nij)%state = st_colmn

@@ -784,7 +784,9 @@ SUBROUTINE load_grid(grid_id, grid_type, tg_time, next_time, last_prev)
   IF(id_time < 1 .OR. id_time > size_time)THEN
     CALL cpu_time(T1)
     IF(next_time == 0)THEN! bottom of the bound
-      forcing_time = tg_time
+      forcing_time = domains(grid_id)%forcings(grid_type)%times(1) - &
+                   (domains(grid_id)%forcings(grid_type)%times(2) - &
+                    domains(grid_id)%forcings(grid_type)%times(1)) - 1
     ELSE IF(id_time > size_time)THEN
       forcing_time = tg_time + (domains(grid_id)%forcings(grid_type)%times(size_time) &
                                   & - domains(grid_id)%forcings(grid_type)%times(size_time-1)-1)
