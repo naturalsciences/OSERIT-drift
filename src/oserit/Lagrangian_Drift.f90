@@ -995,11 +995,15 @@ SUBROUTINE grid_velocity
   !compute the velocity at the location loc of the vertical grid
   USE get_vars
   USE timepars_ose
+  USE parampars
   USE partpars
   USE modstate
   IMPLICIT NONE
-  INTEGER :: nij
+  INTEGER :: nij, cback
   REAL :: depth, depth_prev, coefficient
+
+  cback = -1.*SIGN(1,oserit_param%iopt_backtrack-1)! because is multiplied by cback after and is already backward in backward sims
+
   DO nij = 1,nopart
        part_drift(nij)%grid_velocity = 0
        IF(part(nij)%drift_state .EQ. drst_drift)THEN ! particle not released/stopped shouldn't move
@@ -1007,7 +1011,7 @@ SUBROUTINE grid_velocity
           if (part(nij)%state /= st_atm)then
             depth = get_depth_tot_loc(part(nij)%interp_loc)
             depth_prev = get_depth_tot_loc_prev(part(nij)%interp_loc)
-            part_drift(nij)%grid_velocity = (part(nij)%interp_loc%z_depth / depth) * ((depth - depth_prev) &
+            part_drift(nij)%grid_velocity = cback * (part(nij)%interp_loc%z_depth / depth) * ((depth - depth_prev) &
                                               & /(time_since_epoch - time_since_epoch_prev))
           end if
      END IF
