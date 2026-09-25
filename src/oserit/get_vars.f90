@@ -37,7 +37,7 @@ FUNCTION get_depth_mean_loc(loc)
 
   n = get_forcing_id(loc, oserit_param%lookup_bat(:,5))
   IF(n > -1)THEN
-      get_depth_mean_loc = get_value(loc, domains(n)%forcings(hydro_id), &
+      get_depth_mean_loc = get_value(loc, domains(n)%forcings(bat_id), &
                                       & array_2D = domains(n)%forcings(bat_id)%depth_data%depth_mean)
   ELSE
       get_depth_mean_loc = 0

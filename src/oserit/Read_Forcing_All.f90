@@ -231,6 +231,7 @@ SUBROUTINE allocate_current_grids
   INTEGER :: n !id of the grid
   INTEGER :: status, nDims, nVars, nGlobalAtts, unlimDimID
   character(len = nf90_max_name):: name
+  CHARACTER(LEN=4096) :: error_reading_file
   INTEGER :: dim_lats, dim_lons, dim_depth, dim_time
   INTEGER :: values
 
@@ -241,9 +242,16 @@ SUBROUTINE allocate_current_grids
       print*,"Working on domain ",n
       status = nf90_open(get_forcing_file_path(n, hydro_id, IDateTime) &
                         &,NF90_NOWRITE, ncids(n,hydro_id))
-      if (status /= nf90_noerr)then
-        print*, "Failed to open : "// get_forcing_file_path(n, hydro_id, IDateTime), "  Domain:", n
-        stop 'unable to open current forcing file for allocation'
+      IF (status /= nf90_noerr) THEN
+          WRITE(error_reading_file, '(A,A,A,I0,A,A)') &
+              "Failed to open : ", &
+              get_forcing_file_path(n, hydro_id, IDateTime), &
+              "  Domain: ", n, &
+              "  NetCDF error: ", &
+              TRIM(nf90_strerror(status))
+
+          PRINT *, TRIM(error_reading_file)
+          stop error_reading_file
       END IF
 
       call prepare_grid(domains(n)%forcings(hydro_id), ncids(n,hydro_id), &
