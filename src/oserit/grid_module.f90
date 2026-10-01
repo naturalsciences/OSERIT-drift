@@ -246,20 +246,22 @@ FUNCTION get_forcing_id(loc, lookup)
 
 END FUNCTION
 
-FUNCTION scale_and_offset(file_id, var_id)
-  !look in the netcdf file if there is a scale factor(1) and a offset(2)
+FUNCTION var_att(file_id, var_id)
+  !look in the netcdf file if there is a scale factor(1), an offset(2), and a fillValue(3)
   USE netcdf
   IMPLICIT NONE
 
   INTEGER, INTENT(IN) :: file_id
   INTEGER, INTENT(IN) :: var_id
-  REAL, DIMENSION(2) :: scale_and_offset
+  REAL, DIMENSION(3) :: var_att
   INTEGER :: status
 
-  status = nf90_get_att(file_id,var_id, "scale_factor", scale_and_offset(1))
-  if (status /= nf90_noerr) scale_and_offset(1) = 1
-  status = nf90_get_att(file_id,var_id, "add_offset", scale_and_offset(2))
-  if (status /= nf90_noerr) scale_and_offset(2) = 0
+  status = nf90_get_att(file_id,var_id, "scale_factor", var_att(1))
+  if (status /= nf90_noerr) var_att(1) = 1
+  status = nf90_get_att(file_id,var_id, "add_offset", var_att(2))
+  if (status /= nf90_noerr) var_att(2) = 0
+  status = nf90_get_att(file_id,var_id, "missing_value", var_att(3))
+  if (status /= nf90_noerr) var_att(3) = 0
 
 END FUNCTION
 
@@ -398,7 +400,7 @@ SUBROUTINE update_depth_forcing(grid_id)
   !update the depth if needed
   INTEGER, INTENT(IN) :: grid_id
   REAL, ALLOCATABLE, DIMENSION(:) :: depth_tmp
-  REAL, DIMENSION(2) :: ar_sc_off
+  REAL, DIMENSION(3) :: ar_sc_off
   real :: T1, T2, dx, dy
   INTEGER, ALLOCATABLE, DIMENSION(:) :: len_array
   INTEGER :: x, y, z, status, x0, x1, y0, y1
@@ -413,7 +415,8 @@ SUBROUTINE update_depth_forcing(grid_id)
     ALLOCATE(depth_tmp(len_array(3)))
     status = nf90_get_var(ncids(grid_id,hydro_id), oserit_param%lookup_cur(grid_id,8), depth_tmp)
     if (status /= nf90_noerr) stop 'unable to load depth'
-    ar_sc_off = scale_and_offset(ncids(grid_id,hydro_id),oserit_param%lookup_cur(grid_id,8))
+    ar_sc_off = var_att(ncids(grid_id,hydro_id),oserit_param%lookup_cur(grid_id,8))
+    WHERE(depth_tmp == ar_sc_off(3))depth_tmp = 0
     depth_tmp = depth_tmp * ar_sc_off(1) + ar_sc_off(2)
     DO x = 1, len_array(1)
       DO y = 1, len_array(2)
@@ -838,7 +841,7 @@ SUBROUTINE load_var(grid_id, grid_type, lookup, tg_time,next_time, read_T, new_t
   REAL, DIMENSION(:,:,:), INTENT(INOUT), OPTIONAL :: array_3D
   REAL, DIMENSION(:,:), INTENT(INOUT), OPTIONAL :: array_2D
   INTEGER, INTENT(OUT) :: new_time ! the time of the varialb read
-  REAL, DIMENSION(2) :: ar_sc_off !scale and offset of the variables
+  REAL, DIMENSION(3) :: ar_sc_off !scale and offset of the variables
   INTEGER, ALLOCATABLE, DIMENSION(:) :: len_array ! dimension of the arrays (lon,lat,depth)
   INTEGER :: id_time, lookup_time, status, file_duration
   REAL :: T1, T2
@@ -890,7 +893,7 @@ SUBROUTINE load_var(grid_id, grid_type, lookup, tg_time,next_time, read_T, new_t
     PRINT*,"error:",status," which should mean:",nf90_strerror(status)
     stop nf90_strerror(status)
   END IF
-  ar_sc_off = scale_and_offset(ncids(grid_id,grid_type),lookup)
+  ar_sc_off = var_att(ncids(grid_id,grid_type),lookup)
 
   IF(read_T .EQV. .TRUE.)THEN !needs to be added if not in K but in °C
     status = nf90_get_att(ncids(grid_id,grid_type),lookup, "units", temperature_units)
@@ -904,8 +907,11 @@ SUBROUTINE load_var(grid_id, grid_type, lookup, tg_time,next_time, read_T, new_t
     END IF
   END IF
   IF(PRESENT(array_2D))THEN
+    WHERE(array_2D == ar_sc_off(3))array_2D = 0
     array_2D = array_2D * ar_sc_off(1) + ar_sc_off(2)
+    
   ELSE
+    WHERE(array_3D == ar_sc_off(3))array_3D = 0
     array_3D = array_3D * ar_sc_off(1) + ar_sc_off(2)
   END IF
 END SUBROUTINE
