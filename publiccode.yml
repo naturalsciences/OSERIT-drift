@@ -1,0 +1,71 @@
+publiccodeYmlVersion: 0.7.0
+name: OSERIT-drift
+url: https://github.com/naturalsciences/OSERIT-drift.git
+landingURL: https://github.com/naturalsciences/OSERIT-drift
+softwareVersion: 1.0.0
+releaseDate: 2026-03-10
+platforms:
+  - linux
+categories:
+  - predictive-analysis
+organisation:
+  uri: https://ror.org/02y22ws83
+  name: Royal Belgian Institute of Natural Sciences
+developmentStatus: stable
+softwareType: standalone/other
+intendedAudience:
+  scope:
+    - environment
+    - emergency-services
+    - research
+    - science-and-technology
+description:
+  en:
+    localisedName: OSERIT-drift
+    shortDescription: Multipurpose Lagrangian tracking model to simulate trajectory
+      drift at sea with currents, wind and waves.
+    longDescription: >
+      OSERIT-drift (Oil Spill Evaluation and Response Integrated Tool) is a
+      multipurpose Lagrangian tracking model that simulates the trajectory drift
+      of particles at sea. It can take ocean currents, wind and waves into
+      account, and includes a random walk algorithm.
+      Simulations are run from the command line using JSON configuration and
+      request files together with hydrodynamic and meteorological forcing data,
+      and results are written as NetCDF files. A test suite and an installation
+      script are provided, along with example simulation files.
+    documentation: https://github.com/naturalsciences/OSERIT-drift/blob/main/README.md
+    features:
+      - Lagrangian tracking of drift at sea
+      - Drift driven by currents, wind and waves
+      - Random walk algorithm
+      - Simulation set-up through JSON configuration and request files
+      - Results written in NetCDF format
+      - Automated installation script and test suite
+      - Example simulation files included
+legal:
+  license: EUPL-1.2
+  mainCopyrightOwner: Royal Belgian Institute of Natural Sciences
+maintenance:
+  type: internal
+  contacts:
+    - name: Sébastien Legrand
+      email: slegrand@naturalsciences.be
+      affiliation: Royal Belgian Institute of Natural Sciences
+    - name: Ludovic Lepers
+      email: llepers@naturalsciences.be
+      affiliation: Royal Belgian Institute of Natural Sciences
+localisation:
+  localisationReady: false
+  availableLanguages:
+    - en
+dependsOn:
+  open:
+    - name: gfortran
+      optional: false
+    - name: CMake
+      optional: false
+    - name: NetCDF-Fortran
+      optional: false
+    - name: Python
+      versionMin: "3"
+      optional: true
