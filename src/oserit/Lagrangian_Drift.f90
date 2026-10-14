@@ -657,13 +657,16 @@ IMPLICIT NONE
 !
 INTEGER :: nij
 REAL, DIMENSION(nopart) :: Rn, phi, K_spread
-REAL, DIMENSION(nopart) :: K_z
+REAL, DIMENSION(nopart) :: K_z, dKz_dz
 REAL, INTENT(IN) :: dt
 INTEGER :: drift_state, submerged
 REAL :: z_part
 REAL :: wvel_dif
+REAL :: dz, dist, Kz_above, Kz_below ! vertical distance to estimate dKz_dz 
 REAL :: depmean, H_wave, T_wave, k_wave, c_wave
 REAL :: volume, coef_a, rho_o, rho_water
+
+TYPE(interp_loc) :: loc_kz
 
 
 ! Name        Type    Purpose
@@ -675,6 +678,9 @@ REAL :: volume, coef_a, rho_o, rho_water
 part_drift%wvel_dif=0.
 
 K_z(:) = 0.
+dKz_dz(:) = 0.
+
+dist = 0.05
 
 !
 !---Vertical diffusion
@@ -693,6 +699,39 @@ SELECT CASE(iopt_dif_coef_v)
               & part(nij)%state == st_dis .OR. part(nij)%state == st_deg)THEN
             K_z(nij) = MAX(1.0E-6,get_K_z_loc(part(nij)%interp_loc))
             IF(isnan(K_z(nij))) K_z(nij) = 1.0E-6
+
+            ! correction 
+            dz = 0.0
+
+            loc_kz%y_lat = part(nij)%interp_loc%y_lat
+            loc_kz%x_lon = part(nij)%interp_loc%x_lon
+            loc_kz%z_depth = part(nij)%interp_loc%z_depth + dist
+
+            if (loc_kz%z_depth < 0.0) then
+              Kz_above = MAX(1.0E-6,get_K_z_loc(loc_kz))
+              if(isnan(Kz_above)) Kz_above = 1.0E-6
+
+              dz = dz + dist
+            else
+              Kz_above = K_z(nij)
+            end if
+
+            loc_kz%z_depth = part(nij)%interp_loc%z_depth - dist
+            if(part(nij)%depth_tot + loc_kz%z_depth > 0.0) then 
+              Kz_below = MAX(1.0E-6,get_K_z_loc(loc_kz))
+              if(isnan(Kz_below)) Kz_below = 1.0E-6
+
+              dz = dz + dist
+            else
+              Kz_below = K_z(nij)
+            end if
+
+            if(dz == 0.0)then
+              dKz_dz(nij) = 0.0
+            else
+              dKz_dz(nij) = (Kz_above - Kz_below)/dz
+            end if
+
           END IF
           END IF
        ENDDO
@@ -722,7 +761,7 @@ part_drift%K_z_prev = 0
 CALL rng_normal_arr(Rn,nopart,main_numgen,0.,1.,limit=5.)
 
 WHERE (part%drift_state.EQ.2)
-    part_drift%wvel_dif=Rn*SQRT(2.*K_z/dt)
+    part_drift%wvel_dif=Rn*SQRT(2.*K_z/dt) + dKz_dz
     part_drift%K_z_prev=part_drift%K_z
     part_drift%K_z=K_z
 ENDWHERE
