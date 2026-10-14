@@ -31,6 +31,8 @@ class forcings:
         #5-34
         self.density = 1026.908
 
+        self.Kz = 0
+
         self.bath_depth = None
         self.uniform_depth = True
         self.tidal_cycle = []
@@ -66,7 +68,7 @@ class forcings:
     def save_forcing(self, path, save_wind = False, save_wave = False):
         self.create_lon_lat_depth_time()
         create_bathymetry(path, self.bath_depth, self.longitudes, self.latitudes)
-        create_current(path, self.init_date, self.uo, self.vo, self.wo, self.water_temp, self.salinity, self.density, self.longitudes, 
+        create_current(path, self.init_date, self.uo, self.vo, self.wo, self.water_temp, self.salinity, self.density, self.Kz, self.longitudes,
                         self.latitudes, self.depths, self.times, self.uniform_depth, self.tidal_cycle)
         if save_wind :
             create_wind_forcing(path, self.init_date, self.u_wind, self.v_wind, self.air_temp, self.longitudes, self.latitudes, self.times)
@@ -108,7 +110,7 @@ def create_bathymetry(path, bath_depth, longitudes, latitudes):
                          "m")
     nc_file_h.close()
 
-def create_current(path, date, uo, vo, wo, water_temp, salinity, density, longitudes, latitudes, depths, times, uniform_depth, tidal_cycle):
+def create_current(path, date, uo, vo, wo, water_temp, salinity, density, Kz, longitudes, latitudes, depths, times, uniform_depth, tidal_cycle):
     """
     Create an hydrodynamic forcing, if uniform_depth is not True, then create it for sigma coordinate
     current can be 
@@ -116,7 +118,7 @@ def create_current(path, date, uo, vo, wo, water_temp, salinity, density, longit
     -array for each depth
     -array for each time in an array for each depth
 
-    tidal_cycle is the depth (will bbe mutliplied by the max depth), only for non uniform depth
+    tidal_cycle is the depth (will be mutliplied by the max depth), only for non uniform depth
 
     """
 
@@ -180,6 +182,13 @@ def create_current(path, date, uo, vo, wo, water_temp, salinity, density, longit
     else:
         array_wo[:,:,:,:] = wo
 
+    array_Kz = np.zeros((len(depths),len(longitudes),len(latitudes), len(times)))
+    if isinstance(Kz, list):
+        Kz = Kz + [Kz[-1]] * (len(depths) - len(Kz))
+        array_Kz[:] = np.array(Kz)[:, np.newaxis, np.newaxis, np.newaxis]
+    else:
+        array_Kz[:,:,:,:] = Kz
+
     nc_file_h.add_variable_depth_lon_lat_time('uo',array_uo)
     nc_file_h.add_info_var('uo',
                          "eastward_sea_water_velocity",
@@ -218,6 +227,13 @@ def create_current(path, date, uo, vo, wo, water_temp, salinity, density, longit
                          "sea_water_density",
                          "sea water density",
                          "kg m-3")
+
+    nc_file_h.add_variable_depth_lon_lat_time('Kz',array_Kz)
+    nc_file_h.add_info_var('Kz',
+                         "vertical_turbulent_diffusivity",
+                         "vertical turbulent diffusivity",
+                         "m2 s-1")
+    
     if not uniform_depth:
             depth_tot = np.zeros((len(longitudes),len(latitudes),len(times)))
             for i in range(len(times)):
