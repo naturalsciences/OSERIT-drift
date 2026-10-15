@@ -173,6 +173,8 @@ TYPE oserit_parameters
 
    real :: max_stockes ! maximum speed of stockes drift if computed on the fly
 
+   real :: diffusion_slope_distance ! to compute the dK/dz
+
    integer :: iopt_set_seed
 
    integer :: seed1 = 123456789

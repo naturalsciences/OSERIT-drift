@@ -689,6 +689,14 @@ SUBROUTINE read_input_json(oserit_param,infilename)
   if (.not. found) stop 'json_cfg:no max_stockes'
   read(string,*) oserit_param%max_stockes
 
+  call json_cfg%get('diffusion_slope_distance.units',string,found)
+  if (.not. found) stop 'json:diffusion_slope_distance units is undefined'
+  IF(string /= "m") STOP 'json:diffusion_slope_distance units not m'
+
+  call json_cfg%get('diffusion_slope_distance.value',string,found)
+  if (.not. found) stop 'json_cfg:no diffusion_slope_distance.value'
+  read(string,*) oserit_param%diffusion_slope_distance
+
 
   call json_cfg%destroy()
   if ( json_cfg%failed()) stop 1

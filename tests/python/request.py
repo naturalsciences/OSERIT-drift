@@ -18,6 +18,10 @@ default_cfg = {
          "Trilinear_interpolation"
       ]
    },
+   "diffusion_slope_distance":{
+      "value":0.05,
+      "units":"m"
+   },
    "domains":[
      {
        "hydro":{

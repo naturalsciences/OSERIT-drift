@@ -662,7 +662,7 @@ REAL, INTENT(IN) :: dt
 INTEGER :: drift_state, submerged
 REAL :: z_part
 REAL :: wvel_dif
-REAL :: dz, dist, Kz_above, Kz_below ! vertical distance to estimate dKz_dz 
+REAL :: dz, Kz_above, Kz_below ! vertical distance to estimate dKz_dz 
 REAL :: depmean, H_wave, T_wave, k_wave, c_wave
 REAL :: volume, coef_a, rho_o, rho_water
 
@@ -679,8 +679,6 @@ part_drift%wvel_dif=0.
 
 K_z(:) = 0.
 dKz_dz(:) = 0.
-
-dist = 0.05
 
 !
 !---Vertical diffusion
@@ -705,23 +703,23 @@ SELECT CASE(iopt_dif_coef_v)
 
             loc_kz%y_lat = part(nij)%interp_loc%y_lat
             loc_kz%x_lon = part(nij)%interp_loc%x_lon
-            loc_kz%z_depth = part(nij)%interp_loc%z_depth + dist
+            loc_kz%z_depth = part(nij)%interp_loc%z_depth + oserit_param%diffusion_slope_distance
 
             if (loc_kz%z_depth < 0.0) then
               Kz_above = MAX(1.0E-6,get_K_z_loc(loc_kz))
               if(isnan(Kz_above)) Kz_above = 1.0E-6
 
-              dz = dz + dist
+              dz = dz + oserit_param%diffusion_slope_distance
             else
               Kz_above = K_z(nij)
             end if
 
-            loc_kz%z_depth = part(nij)%interp_loc%z_depth - dist
+            loc_kz%z_depth = part(nij)%interp_loc%z_depth - oserit_param%diffusion_slope_distance
             if(part(nij)%depth_tot + loc_kz%z_depth > 0.0) then 
               Kz_below = MAX(1.0E-6,get_K_z_loc(loc_kz))
               if(isnan(Kz_below)) Kz_below = 1.0E-6
 
-              dz = dz + dist
+              dz = dz + oserit_param%diffusion_slope_distance
             else
               Kz_below = K_z(nij)
             end if
